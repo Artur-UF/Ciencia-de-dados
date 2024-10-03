@@ -53,3 +53,8 @@ plt.legend()
 plt.title('Ajuste por Mínimos Quadrados\n'+f'NP: a = {a:.2f}, b = {b:.2f}\nP: a = {apond:.2f}, b = {bpond:.2f}, '+r'$(\Delta b)^2 = $'+f'{deltab2:.2f}')
 plt.savefig('minquad-ajuste.png', dpi=400)
 
+f = open('dados-atv1.csv', 'w')
+for i in range(n):
+    f.write(f'{x[i]},{y[i]}\n')
+f.close()
+
