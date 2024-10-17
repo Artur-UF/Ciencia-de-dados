@@ -14,16 +14,21 @@ df_filter = df[df['threshold'] == limiar]
 
 cols = list(col for col in df_filter.columns if col.startswith('tc_loss_ha_') or col == 'subnational1' or col == 'area_ha')
 
-years = list(int(y.split('_')[-1]) for y in cols[2:])
+years = np.asarray(list(int(y.split('_')[-1]) for y in cols[2:]))
 
 
 df_filter = df_filter[cols]
 
-def func(x, a, b):
+
+# Funções de ajuste
+def func1(x, a, b):
     return a + b*x
 
-fig, ax = plt.subplots(1, 2, figsize=(10, 5), layout='constrained')
+def func2(x, a, b):
+    return a*x**b
 
+
+fig, ax = plt.subplots(1, 2, figsize=(10, 5), layout='constrained')
 
 index_cut_year = 8
 
@@ -38,19 +43,28 @@ for i in range(len(states)):
     values_cumul = np.cumsum(values)
     values_cumul = values_cumul/values_cumul[0]
 
-    log_years = np.log10(years)
-    log_values = np.log10(list(values_cumul))
-
-    pr, pcov = sp.curve_fit(func, years[-index_cut_year:], log_values[-index_cut_year:])
-
-    x = np.linspace(2013, 2024, 1000)
-    y = func(x, pr[0], pr[1])
-
     plt.subplot(121)
     plt.plot(years, values/area, colors[i], label=states[i])
     plt.subplot(122)
-    plt.plot(years, log_values, colors[i], label=states[i]+f' | y(t) = {pr[0]:.2f}t^({pr[1]:.2f})')
-    plt.plot(x, y, colors[i], linestyle='--')
+    plt.plot(years, values_cumul, colors[i], label=states[i]) #+f' | y(t) = {pr[0]:.2f}t^({pr[1]:.2f})')
+
+    if states[i] == 'Amazonas':
+        pr1, pcov1 = sp.curve_fit(func1, years[:index_cut_year-1], values_cumul[:index_cut_year-1])
+
+        x1 = np.linspace(2002, 2018, 1000)
+        y1 = func1(x1, pr1[0], pr1[1])
+
+        plt.plot(x1, y1, 'k', linestyle='-.')
+
+        log_years = np.log10(abs(years[-index_cut_year+1:]-years[index_cut_year]))
+        log_values = np.log10(list(values_cumul)[-index_cut_year+1:])
+
+        pr2, pcov2 = sp.curve_fit(func1, log_years, log_values)
+
+        x2 = np.linspace(2010, 2024, 1000)
+        y2 = func2(x2, pr2[0], pr2[1])
+
+        plt.plot(x2, y2, 'k', linestyle='--')
 
 
 plt.subplot(121)
@@ -63,5 +77,5 @@ plt.legend()
 plt.xlabel('Anos')
 plt.ylabel('Perda Cumulativa')
 
-plt.savefig('comp.png', dpi=400)
+plt.savefig('new-comp.png', dpi=400)
 
