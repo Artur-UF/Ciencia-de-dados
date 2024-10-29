@@ -2,8 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
-
 df = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv', encoding='utf-8')
 
 df_filtered = df.drop(['UID', 'iso2', 'iso3', 'code3', 'FIPS', 'Country_Region', 'Lat', 'Long_', 'Combined_Key'], axis=1)
@@ -19,9 +17,6 @@ t = np.arange(0, len(values_columns), 1)
 fig, ax = plt.subplots(1, 1, figsize=(10, 10), layout='constrained')
 
 cities = ['New York', 'Los Angeles', 'Washington']
-
-#print(df_filtered[df_filtered['Admin2'] == 'Miami'])
-
 
 for i in range(len(cities)):
     plt.plot(t, df_filtered[df_filtered['Admin2'] == cities[i]].values.flatten()[2:], label=cities[i])
